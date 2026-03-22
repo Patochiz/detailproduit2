@@ -262,20 +262,46 @@ function extractQuantity(el) {
 }
 
 function extractProductType(el) {
-    // Hidden input (draft mode)
+    // 1. Hidden input (draft mode only)
     var input = el.querySelector('input[name*="product_type"]');
     if (input && input.value) return parseInt(input.value);
-    // Data attribute
+
+    // 2. Data attribute
     if (el.dataset && el.dataset.productType) return parseInt(el.dataset.productType);
-    // Product link URL contains type=1 for services
+
+    // 3. Product link URL contains type=1
     var links = el.querySelectorAll('a[href*="product/card.php"]');
     for (var i = 0; i < links.length; i++) {
         if (links[i].href.indexOf('type=1') !== -1) return 1;
     }
-    // Dolibarr 20: service icon (object_service.png or picto for service)
-    var imgs = el.querySelectorAll('img[src*="service"], img[alt*="Service"]');
-    if (imgs.length > 0) return 1;
+
+    // 4. Service icon in Dolibarr themes (img or span)
+    //    Dolibarr uses object_service.png for services, object_product.png for products
+    var serviceIndicators = el.querySelectorAll(
+        'img[src*="object_service"],' +
+        'span[class*="object_service"],' +
+        'span.fas.fa-concierge-bell'
+    );
+    if (serviceIndicators.length > 0) return 1;
+
+    // 5. Known service product: ID 361 = section separator (Diamant Industrie business rule)
+    //    On validated orders, product_type is not in the DOM, so we extract from product link
+    var productId = extractProductId(el);
+    if (productId == 361) return 1;
+
     return 0;
+}
+
+/**
+ * Extract product ID from the product link in a table row
+ */
+function extractProductId(el) {
+    var links = el.querySelectorAll('a[href*="product/card.php"]');
+    for (var i = 0; i < links.length; i++) {
+        var match = links[i].href.match(/[?&]id=(\d+)/);
+        if (match) return parseInt(match[1]);
+    }
+    return null;
 }
 
 function getOrderIdFromUrl() {
