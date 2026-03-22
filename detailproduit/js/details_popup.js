@@ -205,12 +205,13 @@ function addDetailsButtonToLine(lineId, lineElement) {
     }
     if (!targetCell) return;
 
-    var productType = extractProductType(lineElement);
+    var productId = extractProductId(lineElement);
     var btn = document.createElement('a');
     btn.href = '#';
     btn.className = 'details-btn-open';
 
-    if (productType === 1) {
+    if (productId == 361) {
+        // Service séparateur de sections (ID 361) → popup libellé commande
         btn.title = 'Modifier le label du service';
         btn.innerHTML = '&#x1F3F7;';
         btn.style.cssText = 'margin-left:5px;text-decoration:none;font-size:11px;padding:2px 6px;background:#28a745;color:white;border-radius:2px;';
@@ -228,6 +229,7 @@ function addDetailsButtonToLine(lineId, lineElement) {
             return false;
         };
     } else {
+        // Tous les autres produits/services → popup détails produit
         btn.title = 'Détails produit';
         btn.innerHTML = '&#x1F4CB;';
         btn.style.cssText = 'margin-left:5px;text-decoration:none;font-size:11px;padding:2px 6px;background:#17a2b8;color:white;border-radius:2px;';
