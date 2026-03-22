@@ -1,0 +1,213 @@
+# Copyright (C) 2025 Patrice GOURMELEN <pgourmelen@diamant-industrie.com>
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+#
+# Generic
+#
+
+# Module label 'ModuleDetailproduitName'
+ModuleDetailproduitName = Product Details
+# Module description 'ModuleDetailproduitDesc'
+ModuleDetailproduitDesc = Module for managing dimension details in order lines
+
+#
+# Admin page
+#
+DetailproduitSetup = Product Details Setup
+Settings = Settings
+DetailproduitSetupPage = Product Details setup page
+NewSection=New section
+DETAILPRODUIT_MYPARAM1 = My param 1
+DETAILPRODUIT_MYPARAM1Tooltip = My param 1 tooltip
+DETAILPRODUIT_MYPARAM2=My param 2
+DETAILPRODUIT_MYPARAM2Tooltip=My param 2 tooltip
+
+#
+# About page
+#
+About = About
+DetailproduitAbout = About Product Details
+DetailproduitAboutPage = Product Details about page
+
+#
+# Sample page
+#
+DetailproduitArea = Product Details Area
+MyPageName = My page name
+
+#
+# Details interface
+#
+ProductDetails = Product Details
+ProductDetailsModal = Product Details Management
+ProductName = Product
+TotalQuantityToDistribute = Total quantity to distribute
+Pieces = Nb pieces
+Length = Length (mm)
+Width = Width (mm)
+TotalValue = Total
+Unit = Unit
+Description = Description
+Position = Position
+Actions = Actions
+
+# Buttons and actions
+AddLine = Add line
+ClearAll = Clear all
+UpdateCommandQuantity = Update command quantity
+Save = Save
+Cancel = Cancel
+Delete = Delete
+Export = Export
+ExportCSV = Export to CSV
+
+# Messages
+DetailsLoadingMessage = Loading details...
+DetailsSavingMessage = Saving...
+DetailsSuccessSaved = Details saved successfully!
+DetailsErrorSaving = Error while saving
+DetailsNoValidData = No valid data provided
+DetailsQuantityUpdated = Quantity updated successfully!
+DetailsConfirmClear = Are you sure you want to clear all lines?
+DetailsConfirmUpdateQuantity = Do you want to update the command line quantity?
+DetailsCurrentQuantity = Current quantity
+DetailsNewQuantity = New quantity
+DetailsPleaseEnterLine = Please enter at least one detail line
+DetailsNoQuantityCalculated = No quantity calculated
+DetailsErrorCommunication = Server communication error
+DetailsAccessDenied = Access denied
+DetailsCommandLineNotFound = Command line not found
+DetailsInvalidJsonFormat = Invalid JSON format
+DetailsInvalidToken = Invalid token
+DetailsModuleNotEnabled = Module not enabled
+DetailsMissingParameters = Missing parameters
+DetailsUnknownAction = Unknown action
+DetailsDatabaseError = Database error
+DetailsSaveFailed = Save failed
+DetailsUpdateFailed = Update failed
+
+# Units
+UnitSquareMeters = m²
+UnitLinearMeters = ml
+UnitPieces = u
+
+# Totals and summaries
+TotalPieces = pieces
+TotalCalculated = Total calculated
+DetailsSummary = Details summary
+DetailsHasContent = Contains details
+
+# Navigation and help
+NavigationTipTabHorizontal = Use Tab to navigate horizontally
+NavigationTipEnterVertical = Use Enter to navigate vertically
+NavigationTip = Tip: Use Tab to navigate horizontally, Enter to navigate vertically
+
+# Permissions
+PermissionDetailsRead = Read product details
+PermissionDetailsWrite = Create/Update product details
+PermissionDetailsDelete = Delete product details
+
+# Validation errors
+ErrorPiecesMustBePositive = Number of pieces must be positive
+ErrorDimensionsMustBePositive = Dimensions must be positive
+ErrorDescriptionTooLong = Description is too long
+
+# Calculations
+CalculatedValue = Calculated value
+CalculationFormula = Calculation formula
+CalculationSquareMeters = m² = Nb pieces × (Length/1000) × (Width/1000)
+CalculationLinearMeters = ml = Nb pieces × (Dimension/1000)
+CalculationPieces = u = Nb pieces
+
+# Sorting and organization
+SortByPieces = Sort by number of pieces
+SortByLength = Sort by length
+SortByWidth = Sort by width
+SortByDescription = Sort by description
+SortAscending = Ascending sort
+SortDescending = Descending sort
+
+# Status and states
+DetailsEmpty = No details
+DetailsLoading = Loading...
+DetailsSaving = Saving...
+DetailsLoaded = Details loaded
+DetailsSaved = Details saved
+
+# Widget
+MyWidget = My widget
+MyWidgetDescription = My widget description
+
+# Files and export
+ExportFilename = details_order_%s_%s.csv
+ExportHeader = Pieces,Length,Width,Total,Unit,Description
+
+# System information messages
+DetailsModuleEnabled = Product Details module enabled
+DetailsModuleDisabled = Product Details module disabled
+DetailsTableCreated = Details table created
+DetailsIndexesCreated = Performance indexes created
+DetailsPermissionsAdded = Permissions added
+
+# Responsive interface
+DetailsModalTitle = Product details
+DetailsModalClose = Close
+DetailsModalMaximize = Maximize
+DetailsModalMinimize = Minimize
+
+# Formatting and display
+DetailsFormatNumber = %s with %d decimals
+DetailsFormatCurrency = %s %s
+DetailsFormatQuantity = %s %s
+DetailsFormatDimensions = %s × %s mm
+DetailsFormatSummary = %d pieces (%s)
+
+# Cell states
+CellCalculated = Calculated cell
+CellEditable = Editable cell
+CellFocused = Active cell
+CellError = Cell error
+CellEmpty = Empty cell
+
+# Contextual messages
+ContextOrderCard = Order page
+ContextInvoiceCard = Invoice page
+ContextPropalCard = Proposal page
+ContextSupplierCard = Supplier order page
+
+# Data integrity and cleanup
+DataIntegrity = Data integrity
+OrphanedData = Orphaned data
+OrphanedDataFound = Orphaned data detected
+OrphanedDataCleanup = Orphaned data cleanup
+IntegrityOK = Data integrity OK
+DataIntegrityCheck = Data integrity check
+Check = Check
+Cleanup = Cleanup
+OrphanedDetails = Orphaned details
+OrphanedExtrafields = Orphaned extrafields
+TriggerInstalled = Trigger installed
+TriggerMissing = Trigger missing
+TotalDetails = Total details
+ActiveExtrafields = Active extrafields
+NoCleanupNeeded = No cleanup needed
+CleanupRecommended = Cleanup recommended
+CleanupConfirm = Are you sure you want to cleanup orphaned data?
+DataIntegrityReport = Data integrity report
+StatisticsGeneral = General statistics
+ProblemsDetected = problem(s) detected
+CleanupCompleted = Cleanup completed
+DetailsDeleted = details deleted
+ExtrafieldsDeleted = extrafields cleaned

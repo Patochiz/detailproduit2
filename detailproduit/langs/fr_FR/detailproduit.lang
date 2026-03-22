@@ -1,0 +1,213 @@
+# Copyright (C) 2025 Patrice GOURMELEN <pgourmelen@diamant-industrie.com>
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+#
+# Générique
+#
+
+# Libellé du module 'ModuleDetailproduitName'
+ModuleDetailproduitName = Détails Produit
+# Description du module 'ModuleDetailproduitDesc'
+ModuleDetailproduitDesc = Module de gestion des détails de dimensions pour les lignes de commande
+
+#
+# Page d'administration
+#
+DetailproduitSetup = Configuration Détails Produit
+Settings = Paramètres
+DetailproduitSetupPage = Page de configuration du module Détails Produit
+NewSection=Nouvelle section
+DETAILPRODUIT_MYPARAM1 = Paramètre 1
+DETAILPRODUIT_MYPARAM1Tooltip = Description du paramètre 1
+DETAILPRODUIT_MYPARAM2=Paramètre 2
+DETAILPRODUIT_MYPARAM2Tooltip=Description du paramètre 2
+
+#
+# Page À propos
+#
+About = À propos
+DetailproduitAbout = À propos du module Détails Produit
+DetailproduitAboutPage = Page d'information sur le module Détails Produit
+
+#
+# Pages principales
+#
+DetailproduitArea = Espace Détails Produit
+MyPageName = Nom de ma page
+
+#
+# Interface des détails
+#
+ProductDetails = Détails du produit
+ProductDetailsModal = Gestion des détails produit
+ProductName = Produit
+TotalQuantityToDistribute = Quantité totale à répartir
+Pieces = Nb pièces
+Length = Longueur (mm)
+Width = Largeur (mm)
+TotalValue = Total
+Unit = Unité
+Description = Description
+Position = Position
+Actions = Actions
+
+# Boutons et actions
+AddLine = Ajouter une ligne
+ClearAll = Vider tout
+UpdateCommandQuantity = Mettre à jour la quantité commande
+Save = Sauvegarder
+Cancel = Annuler
+Delete = Supprimer
+Export = Exporter
+ExportCSV = Exporter en CSV
+
+# Messages
+DetailsLoadingMessage = Chargement des détails...
+DetailsSavingMessage = Sauvegarde en cours...
+DetailsSuccessSaved = Détails sauvegardés avec succès !
+DetailsErrorSaving = Erreur lors de la sauvegarde
+DetailsNoValidData = Aucune donnée valide fournie
+DetailsQuantityUpdated = Quantité mise à jour avec succès !
+DetailsConfirmClear = Êtes-vous sûr de vouloir vider toutes les lignes ?
+DetailsConfirmUpdateQuantity = Voulez-vous mettre à jour la quantité de la ligne de commande ?
+DetailsCurrentQuantity = Quantité actuelle
+DetailsNewQuantity = Nouvelle quantité
+DetailsPleaseEnterLine = Veuillez saisir au moins une ligne de détail
+DetailsNoQuantityCalculated = Aucune quantité calculée
+DetailsErrorCommunication = Erreur de communication avec le serveur
+DetailsAccessDenied = Accès refusé
+DetailsCommandLineNotFound = Ligne de commande non trouvée
+DetailsInvalidJsonFormat = Format JSON invalide
+DetailsInvalidToken = Token invalide
+DetailsModuleNotEnabled = Module non activé
+DetailsMissingParameters = Paramètres manquants
+DetailsUnknownAction = Action inconnue
+DetailsDatabaseError = Erreur de base de données
+DetailsSaveFailed = Échec de la sauvegarde
+DetailsUpdateFailed = Échec de la mise à jour
+
+# Unités
+UnitSquareMeters = m²
+UnitLinearMeters = ml
+UnitPieces = u
+
+# Totaux et résumés
+TotalPieces = pièces
+TotalCalculated = Total calculé
+DetailsSummary = Résumé des détails
+DetailsHasContent = Contient des détails
+
+# Navigation et aide
+NavigationTipTabHorizontal = Utilisez Tab pour naviguer horizontalement
+NavigationTipEnterVertical = Utilisez Entrée pour naviguer verticalement
+NavigationTip = Tip: Utilisez Tab pour naviguer horizontalement, Entrée pour naviguer verticalement
+
+# Permissions
+PermissionDetailsRead = Consulter les détails produits
+PermissionDetailsWrite = Créer/Modifier les détails produits
+PermissionDetailsDelete = Supprimer les détails produits
+
+# Erreurs de validation
+ErrorPiecesMustBePositive = Le nombre de pièces doit être positif
+ErrorDimensionsMustBePositive = Les dimensions doivent être positives
+ErrorDescriptionTooLong = La description est trop longue
+
+# Calculs
+CalculatedValue = Valeur calculée
+CalculationFormula = Formule de calcul
+CalculationSquareMeters = m² = Nb pièces × (Longueur/1000) × (Largeur/1000)
+CalculationLinearMeters = ml = Nb pièces × (Dimension/1000)
+CalculationPieces = u = Nb pièces
+
+# Tri et organisation
+SortByPieces = Trier par nombre de pièces
+SortByLength = Trier par longueur
+SortByWidth = Trier par largeur
+SortByDescription = Trier par description
+SortAscending = Tri croissant
+SortDescending = Tri décroissant
+
+# Statuts et états
+DetailsEmpty = Aucun détail
+DetailsLoading = Chargement...
+DetailsSaving = Sauvegarde...
+DetailsLoaded = Détails chargés
+DetailsSaved = Détails sauvegardés
+
+# Widget
+MyWidget = Mon widget
+MyWidgetDescription = Description de mon widget
+
+# Fichiers et export
+ExportFilename = details_commande_%s_%s.csv
+ExportHeader = Pieces,Longueur,Largeur,Total,Unite,Description
+
+# Messages d'information système
+DetailsModuleEnabled = Module Détails Produit activé
+DetailsModuleDisabled = Module Détails Produit désactivé
+DetailsTableCreated = Table des détails créée
+DetailsIndexesCreated = Index de performance créés
+DetailsPermissionsAdded = Permissions ajoutées
+
+# Interface responsive
+DetailsModalTitle = Détails du produit
+DetailsModalClose = Fermer
+DetailsModalMaximize = Agrandir
+DetailsModalMinimize = Réduire
+
+# Formatage et affichage
+DetailsFormatNumber = %s avec %d décimales
+DetailsFormatCurrency = %s %s
+DetailsFormatQuantity = %s %s
+DetailsFormatDimensions = %s × %s mm
+DetailsFormatSummary = %d pièces (%s)
+
+# États des cellules
+CellCalculated = Cellule calculée
+CellEditable = Cellule modifiable
+CellFocused = Cellule active
+CellError = Erreur dans la cellule
+CellEmpty = Cellule vide
+
+# Messages contextuels
+ContextOrderCard = Page de commande
+ContextInvoiceCard = Page de facture
+ContextPropalCard = Page de proposition commerciale
+ContextSupplierCard = Page de commande fournisseur
+
+# Intégrité des données et nettoyage
+DataIntegrity = Intégrité des données
+OrphanedData = Données orphelines
+OrphanedDataFound = Données orphelines détectées
+OrphanedDataCleanup = Nettoyage des données orphelines
+IntegrityOK = Intégrité des données OK
+DataIntegrityCheck = Vérification de l'intégrité des données
+Check = Vérifier
+Cleanup = Nettoyer
+OrphanedDetails = Détails orphelins
+OrphanedExtrafields = Extrafields orphelins
+TriggerInstalled = Trigger installé
+TriggerMissing = Trigger manquant
+TotalDetails = Total détails
+ActiveExtrafields = Extrafields actifs
+NoCleanupNeeded = Aucun nettoyage nécessaire
+CleanupRecommended = Nettoyage recommandé
+CleanupConfirm = Êtes-vous sûr de vouloir nettoyer les données orphelines ?
+DataIntegrityReport = Rapport d'intégrité des données
+StatisticsGeneral = Statistiques générales
+ProblemsDetected = problème(s) détecté(s)
+CleanupCompleted = Nettoyage terminé
+DetailsDeleted = détails supprimés
+ExtrafieldsDeleted = extrafields nettoyés

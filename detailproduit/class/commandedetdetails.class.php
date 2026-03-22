@@ -1,0 +1,458 @@
+<?php
+/* Copyright (C) 2025 Patrice GOURMELEN <pgourmelen@diamant-industrie.com>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ */
+
+/**
+ * \file    class/commandedetdetails.class.php
+ * \ingroup detailproduit
+ * \brief   CRUD class for order line details stored in extrafields
+ */
+
+require_once DOL_DOCUMENT_ROOT.'/core/class/commonobject.class.php';
+
+class CommandeDetDetails extends CommonObject
+{
+	public $module = 'detailproduit';
+	public $element = 'commandedetdetails';
+
+	public function __construct(DoliDB $db)
+	{
+		$this->db = $db;
+	}
+
+	/**
+	 * Get details for an order line from extrafield detailjson
+	 *
+	 * @param  int       $fk_commandedet  Order line ID
+	 * @return array|int                  Array of details or -1 on error
+	 */
+	public function getDetailsForLine($fk_commandedet)
+	{
+		$sql = "SELECT detailjson FROM ".MAIN_DB_PREFIX."commandedet_extrafields";
+		$sql .= " WHERE fk_object = ".((int) $fk_commandedet);
+
+		$resql = $this->db->query($sql);
+		if (!$resql) {
+			$this->errors[] = 'Error '.$this->db->lasterror();
+			dol_syslog(__METHOD__.' '.$this->db->lasterror(), LOG_ERR);
+			return -1;
+		}
+
+		$details = array();
+
+		if ($this->db->num_rows($resql)) {
+			$obj = $this->db->fetch_object($resql);
+			if (!empty($obj->detailjson)) {
+				$decoded = json_decode($obj->detailjson, true);
+				if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
+					foreach ($decoded as $index => $detail) {
+						$details[] = array(
+							'rowid' => $index + 1,
+							'fk_commandedet' => $fk_commandedet,
+							'pieces' => $detail['pieces'] ?? 0,
+							'longueur' => $detail['longueur'] ?? null,
+							'largeur' => $detail['largeur'] ?? null,
+							'total_value' => $detail['total_value'] ?? 0,
+							'unit' => $detail['unit'] ?? 'u',
+							'description' => $detail['description'] ?? '',
+							'rang' => $index + 1,
+						);
+					}
+				}
+			}
+		}
+
+		$this->db->free($resql);
+		return $details;
+	}
+
+	/**
+	 * Save details for an order line into extrafields
+	 *
+	 * @param  int   $fk_commandedet  Order line ID
+	 * @param  array $details_array   Details to save
+	 * @param  User  $user            Current user
+	 * @return int                    <0 on error, >0 on success
+	 */
+	public function saveDetailsForLine($fk_commandedet, $details_array, User $user)
+	{
+		$this->db->begin();
+
+		$clean_details = array();
+		foreach ($details_array as $detail) {
+			$clean_details[] = array(
+				'pieces' => (float) $detail['pieces'],
+				'longueur' => !empty($detail['longueur']) ? (float) $detail['longueur'] : null,
+				'largeur' => !empty($detail['largeur']) ? (float) $detail['largeur'] : null,
+				'total_value' => (float) $detail['total_value'],
+				'unit' => (string) $detail['unit'],
+				'description' => (string) ($detail['description'] ?? ''),
+			);
+		}
+
+		$json_data = json_encode($clean_details, JSON_UNESCAPED_UNICODE);
+		if (json_last_error() !== JSON_ERROR_NONE) {
+			$this->errors[] = 'JSON encode error: '.json_last_error_msg();
+			$this->db->rollback();
+			return -1;
+		}
+
+		$formatted_detail = $this->generateFormattedDetail($clean_details);
+
+		$result = $this->updateExtrafields($fk_commandedet, $json_data, $formatted_detail);
+		if ($result < 0) {
+			$this->db->rollback();
+			return -1;
+		}
+
+		$this->db->commit();
+		return 1;
+	}
+
+	/**
+	 * Generate formatted display string for the "detail" extrafield
+	 *
+	 * @param  array  $details_array  Cleaned details
+	 * @return string                 HTML formatted string
+	 */
+	private function generateFormattedDetail($details_array)
+	{
+		$lines = array();
+		foreach ($details_array as $detail) {
+			$pieces = (int) $detail['pieces'];
+			$longueur = !empty($detail['longueur']) ? (int) $detail['longueur'] : null;
+			$largeur = !empty($detail['largeur']) ? (int) $detail['largeur'] : null;
+			$total = number_format($detail['total_value'], 2, '.', '');
+			$unit = $detail['unit'];
+			$desc = htmlspecialchars($detail['description'] ?? '', ENT_QUOTES, 'UTF-8');
+
+			$parts = array($pieces);
+			if ($longueur !== null) $parts[] = $longueur;
+			if ($largeur !== null) $parts[] = $largeur;
+
+			$line = implode(' x ', $parts).' ('.$total.' '.$unit.')';
+			if (!empty($desc)) $line .= ' '.$desc;
+
+			$lines[] = $line;
+		}
+		return implode('<br>', $lines);
+	}
+
+	/**
+	 * Insert or update extrafields record
+	 *
+	 * @param  int    $fk_commandedet    Order line ID
+	 * @param  string $json_data         JSON data
+	 * @param  string $formatted_detail  Formatted display string
+	 * @return int                       <0 on error, >0 on success
+	 */
+	private function updateExtrafields($fk_commandedet, $json_data, $formatted_detail)
+	{
+		$sql = "SELECT fk_object FROM ".MAIN_DB_PREFIX."commandedet_extrafields";
+		$sql .= " WHERE fk_object = ".((int) $fk_commandedet);
+
+		$resql = $this->db->query($sql);
+		if (!$resql) {
+			$this->errors[] = 'Error: '.$this->db->lasterror();
+			return -1;
+		}
+
+		$exists = ($this->db->num_rows($resql) > 0);
+		$this->db->free($resql);
+
+		if ($exists) {
+			$sql = "UPDATE ".MAIN_DB_PREFIX."commandedet_extrafields";
+			$sql .= " SET detailjson = '".$this->db->escape($json_data)."'";
+			$sql .= ", detail = '".$this->db->escape($formatted_detail)."'";
+			$sql .= " WHERE fk_object = ".((int) $fk_commandedet);
+		} else {
+			$sql = "INSERT INTO ".MAIN_DB_PREFIX."commandedet_extrafields";
+			$sql .= " (fk_object, detailjson, detail) VALUES";
+			$sql .= " (".((int) $fk_commandedet).", '".$this->db->escape($json_data)."', '".$this->db->escape($formatted_detail)."')";
+		}
+
+		$resql = $this->db->query($sql);
+		if (!$resql) {
+			$this->errors[] = 'Error: '.$this->db->lasterror();
+			return -1;
+		}
+
+		return 1;
+	}
+
+	/**
+	 * Delete details for an order line
+	 *
+	 * @param  int $fk_commandedet  Order line ID
+	 * @return int                  <0 on error, >0 on success
+	 */
+	public function deleteDetailsForLine($fk_commandedet)
+	{
+		$sql = "UPDATE ".MAIN_DB_PREFIX."commandedet_extrafields";
+		$sql .= " SET detailjson = NULL, detail = NULL";
+		$sql .= " WHERE fk_object = ".((int) $fk_commandedet);
+
+		$resql = $this->db->query($sql);
+		if (!$resql) {
+			$this->errors[] = 'Error: '.$this->db->lasterror();
+			return -1;
+		}
+		return 1;
+	}
+
+	/**
+	 * Get totals grouped by unit
+	 *
+	 * @param  int       $fk_commandedet  Order line ID
+	 * @return array|int                  Totals array or -1 on error
+	 */
+	public function getTotalsByUnit($fk_commandedet)
+	{
+		$details = $this->getDetailsForLine($fk_commandedet);
+		if ($details === -1) return -1;
+
+		$totals = array();
+		foreach ($details as $detail) {
+			$unit = $detail['unit'];
+			if (!isset($totals[$unit])) {
+				$totals[$unit] = array('total_value' => 0, 'nb_lines' => 0);
+			}
+			$totals[$unit]['total_value'] += (float) $detail['total_value'];
+			$totals[$unit]['nb_lines']++;
+		}
+
+		uasort($totals, function ($a, $b) {
+			return $b['total_value'] <=> $a['total_value'];
+		});
+
+		return $totals;
+	}
+
+	/**
+	 * Update the order line quantity using Dolibarr's updateline method
+	 *
+	 * @param  int    $fk_commandedet  Order line ID
+	 * @param  float  $new_quantity    New quantity
+	 * @param  string $unit            Main unit
+	 * @return int                     <0 on error, >0 on success
+	 */
+	public function updateCommandLineQuantity($fk_commandedet, $new_quantity, $unit)
+	{
+		$sql = "SELECT cd.fk_commande, cd.description, cd.subprice, cd.qty,";
+		$sql .= " cd.tva_tx, cd.localtax1_tx, cd.localtax2_tx, cd.remise_percent,";
+		$sql .= " cd.info_bits, cd.product_type, cd.fk_parent_line, cd.label,";
+		$sql .= " cd.special_code, cd.rang, cd.fk_unit, cd.date_start, cd.date_end,";
+		$sql .= " cd.buy_price_ht, cd.multicurrency_subprice";
+		$sql .= " FROM ".MAIN_DB_PREFIX."commandedet as cd";
+		$sql .= " WHERE cd.rowid = ".((int) $fk_commandedet);
+
+		$resql = $this->db->query($sql);
+		if (!$resql || !$this->db->num_rows($resql)) {
+			$this->errors[] = 'Line not found: '.$fk_commandedet;
+			return -1;
+		}
+
+		$line = $this->db->fetch_object($resql);
+		$this->db->free($resql);
+
+		require_once DOL_DOCUMENT_ROOT.'/commande/class/commande.class.php';
+		$commande = new Commande($this->db);
+		if ($commande->fetch($line->fk_commande) < 0) {
+			$this->errors[] = 'Error loading order';
+			return -1;
+		}
+
+		$new_quantity = round((float) $new_quantity, 2);
+
+		// Preserve existing extrafields
+		$existing_options = null;
+		$sql_ef = "SELECT * FROM ".MAIN_DB_PREFIX."commandedet_extrafields";
+		$sql_ef .= " WHERE fk_object = ".((int) $fk_commandedet);
+		$resql_ef = $this->db->query($sql_ef);
+		if ($resql_ef && $this->db->num_rows($resql_ef) > 0) {
+			$obj_ef = $this->db->fetch_object($resql_ef);
+			$existing_options = array();
+			foreach ($obj_ef as $key => $value) {
+				if ($key !== 'fk_object' && $key !== 'rowid') {
+					$existing_options['options_'.$key] = $value;
+				}
+			}
+			$this->db->free($resql_ef);
+		}
+
+		$result = $commande->updateline(
+			$fk_commandedet,
+			$line->description,
+			$line->subprice,
+			$new_quantity,
+			$line->remise_percent,
+			$line->tva_tx,
+			$line->localtax1_tx,
+			$line->localtax2_tx,
+			'HT',
+			$line->info_bits,
+			$line->date_start,
+			$line->date_end,
+			$line->product_type,
+			$line->fk_parent_line,
+			0,
+			0,
+			$line->buy_price_ht,
+			$line->label,
+			$line->special_code,
+			$existing_options,
+			$line->fk_unit,
+			$line->multicurrency_subprice,
+			$line->rang
+		);
+
+		if ($result < 0) {
+			$this->errors[] = 'Error updating line: '.implode(', ', $commande->errors);
+			return -1;
+		}
+
+		return 1;
+	}
+
+	/**
+	 * Calculate unit and value from dimensions
+	 *
+	 * @param  float      $pieces    Number of pieces
+	 * @param  float|null $longueur  Length in mm
+	 * @param  float|null $largeur   Width in mm
+	 * @return array                 ['unit' => string, 'total_value' => float]
+	 */
+	public static function calculateUnitAndValue($pieces, $longueur, $largeur)
+	{
+		$pieces = (float) $pieces;
+		$longueur = !empty($longueur) ? (float) $longueur : 0;
+		$largeur = !empty($largeur) ? (float) $largeur : 0;
+
+		if ($longueur > 0 && $largeur > 0) {
+			return array('unit' => 'm²', 'total_value' => $pieces * ($longueur / 1000) * ($largeur / 1000));
+		} elseif ($longueur > 0) {
+			return array('unit' => 'ml', 'total_value' => $pieces * ($longueur / 1000));
+		} elseif ($largeur > 0) {
+			return array('unit' => 'ml', 'total_value' => $pieces * ($largeur / 1000));
+		}
+		return array('unit' => 'u', 'total_value' => $pieces);
+	}
+
+	/**
+	 * Clean orphaned extrafield data
+	 *
+	 * @return array Cleanup statistics
+	 */
+	public function cleanupOrphanedData()
+	{
+		$stats = array(
+			'orphaned_extrafields_found' => 0,
+			'orphaned_extrafields_cleaned' => 0,
+			'errors' => array(),
+		);
+
+		$sql = "SELECT ef.fk_object FROM ".MAIN_DB_PREFIX."commandedet_extrafields ef";
+		$sql .= " LEFT JOIN ".MAIN_DB_PREFIX."commandedet cd ON cd.rowid = ef.fk_object";
+		$sql .= " WHERE cd.rowid IS NULL AND (ef.detailjson IS NOT NULL OR ef.detail IS NOT NULL)";
+
+		$resql = $this->db->query($sql);
+		if (!$resql) {
+			$stats['errors'][] = $this->db->lasterror();
+			return $stats;
+		}
+
+		$orphaned = array();
+		while ($obj = $this->db->fetch_object($resql)) {
+			$orphaned[] = (int) $obj->fk_object;
+		}
+		$this->db->free($resql);
+
+		$stats['orphaned_extrafields_found'] = count($orphaned);
+
+		if (count($orphaned) > 0) {
+			$sql = "UPDATE ".MAIN_DB_PREFIX."commandedet_extrafields";
+			$sql .= " SET detailjson = NULL, detail = NULL";
+			$sql .= " WHERE fk_object IN (".implode(',', $orphaned).")";
+
+			$resql = $this->db->query($sql);
+			if ($resql) {
+				$stats['orphaned_extrafields_cleaned'] = $this->db->affected_rows($resql);
+			} else {
+				$stats['errors'][] = $this->db->lasterror();
+			}
+		}
+
+		return $stats;
+	}
+
+	/**
+	 * Check data integrity
+	 *
+	 * @return array Integrity report
+	 */
+	public function checkDataIntegrity()
+	{
+		$report = array(
+			'total_extrafields_with_detailjson' => 0,
+			'total_extrafields_with_detail' => 0,
+			'orphaned_extrafields' => array(),
+			'invalid_json_extrafields' => array(),
+			'integrity_ok' => true,
+		);
+
+		// Count extrafields with data
+		$sql = "SELECT COUNT(*) as total FROM ".MAIN_DB_PREFIX."commandedet_extrafields WHERE detailjson IS NOT NULL";
+		$resql = $this->db->query($sql);
+		if ($resql) {
+			$report['total_extrafields_with_detailjson'] = $this->db->fetch_object($resql)->total;
+			$this->db->free($resql);
+		}
+
+		$sql = "SELECT COUNT(*) as total FROM ".MAIN_DB_PREFIX."commandedet_extrafields WHERE detail IS NOT NULL";
+		$resql = $this->db->query($sql);
+		if ($resql) {
+			$report['total_extrafields_with_detail'] = $this->db->fetch_object($resql)->total;
+			$this->db->free($resql);
+		}
+
+		// Find orphaned extrafields
+		$sql = "SELECT ef.fk_object FROM ".MAIN_DB_PREFIX."commandedet_extrafields ef";
+		$sql .= " LEFT JOIN ".MAIN_DB_PREFIX."commandedet cd ON cd.rowid = ef.fk_object";
+		$sql .= " WHERE cd.rowid IS NULL AND (ef.detailjson IS NOT NULL OR ef.detail IS NOT NULL)";
+		$resql = $this->db->query($sql);
+		if ($resql) {
+			while ($obj = $this->db->fetch_object($resql)) {
+				$report['orphaned_extrafields'][] = $obj->fk_object;
+			}
+			$this->db->free($resql);
+		}
+
+		// Check for invalid JSON
+		$sql = "SELECT fk_object, detailjson FROM ".MAIN_DB_PREFIX."commandedet_extrafields WHERE detailjson IS NOT NULL";
+		$resql = $this->db->query($sql);
+		if ($resql) {
+			while ($obj = $this->db->fetch_object($resql)) {
+				json_decode($obj->detailjson);
+				if (json_last_error() !== JSON_ERROR_NONE) {
+					$report['invalid_json_extrafields'][] = array(
+						'fk_object' => $obj->fk_object,
+						'json_error' => json_last_error_msg(),
+					);
+				}
+			}
+			$this->db->free($resql);
+		}
+
+		$report['integrity_ok'] = (
+			count($report['orphaned_extrafields']) == 0 &&
+			count($report['invalid_json_extrafields']) == 0
+		);
+
+		return $report;
+	}
+}

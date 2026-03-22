@@ -1,0 +1,654 @@
+/* Copyright (C) 2025 Patrice GOURMELEN <pgourmelen@diamant-industrie.com>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
+/**
+ * \file    css/details_popup.css
+ * \ingroup detailproduit
+ * \brief   CSS for product details popup
+ */
+
+/* Modal principal */
+.details-modal {
+    display: none;
+    position: fixed;
+    z-index: 9999;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+}
+
+.details-modal-content {
+    background-color: #fefefe;
+    margin: 3% auto;
+    padding: 0;
+    border: 1px solid #888;
+    width: 95%;
+    max-width: 900px;
+    border-radius: 4px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    max-height: 90vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Header du modal */
+.details-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+    background: #f8f9fa;
+    border-bottom: 1px solid #dee2e6;
+    flex-shrink: 0;
+}
+
+.details-modal-header h3 {
+    margin: 0;
+    color: #333;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.details-modal-close {
+    color: #aaa;
+    font-size: 24px;
+    font-weight: bold;
+    cursor: pointer;
+    border: none;
+    background: none;
+    padding: 0;
+    line-height: 1;
+}
+
+.details-modal-close:hover,
+.details-modal-close:focus {
+    color: #000;
+}
+
+/* Corps du modal */
+.details-modal-body {
+    padding: 20px;
+    overflow-y: auto;
+    flex-grow: 1;
+}
+
+/* Informations du produit */
+.details-summary-info {
+    background: #e3f2fd;
+    border: 1px solid #90caf9;
+    border-radius: 4px;
+    padding: 12px;
+    margin-bottom: 15px;
+    font-size: 13px;
+}
+
+.details-summary-info strong {
+    color: #1976d2;
+}
+
+/* Toolbar */
+.details-toolbar {
+    margin-bottom: 15px;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.details-btn {
+    padding: 6px 12px;
+    margin: 0;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 12px;
+    background: #f8f9fa;
+    color: #333;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    transition: all 0.2s;
+}
+
+.details-btn:hover {
+    background: #e9ecef;
+    border-color: #adb5bd;
+    text-decoration: none;
+    color: #333;
+}
+
+.details-btn-success {
+    background: #28a745;
+    color: white;
+    border-color: #28a745;
+}
+
+.details-btn-success:hover {
+    background: #218838;
+    border-color: #1e7e34;
+    color: white;
+}
+
+.details-btn-danger {
+    background: #dc3545;
+    color: white;
+    border-color: #dc3545;
+}
+
+.details-btn-danger:hover {
+    background: #c82333;
+    border-color: #bd2130;
+    color: white;
+}
+
+.details-btn-primary {
+    background: #007bff;
+    color: white;
+    border-color: #007bff;
+}
+
+.details-btn-primary:hover {
+    background: #0069d9;
+    border-color: #0062cc;
+    color: white;
+}
+
+/* Container du tableur */
+.details-spreadsheet-container {
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 15px;
+    background: white;
+}
+
+/* Table du tableur */
+.details-spreadsheet-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: inherit;
+    font-size: 12px;
+}
+
+.details-spreadsheet-table th {
+    background: #f8f9fa;
+    padding: 8px 6px;
+    border: 1px solid #dee2e6;
+    font-weight: 600;
+    text-align: center;
+    font-size: 11px;
+    color: #495057;
+    white-space: nowrap;
+}
+
+.details-spreadsheet-table td {
+    padding: 2px;
+    border: 1px solid #dee2e6;
+    position: relative;
+    vertical-align: middle;
+}
+
+/* Inputs dans les cellules */
+.details-cell-input {
+    width: 100%;
+    border: none;
+    padding: 6px 4px;
+    font-size: 12px;
+    background: transparent;
+    text-align: center;
+    outline: none;
+    font-family: inherit;
+}
+
+.details-cell-input:focus {
+    background: #fff3cd;
+    outline: 2px solid #007bff;
+    outline-offset: -2px;
+}
+
+.details-cell-number {
+    text-align: right;
+}
+
+.details-cell-calculated {
+    background: #e8f5e8 !important;
+    font-weight: 500;
+    color: #2d5a2d;
+    text-align: center;
+    padding: 6px 4px;
+    font-size: 11px;
+}
+
+/* Actions de ligne */
+.details-row-actions {
+    width: 50px;
+    text-align: center;
+    padding: 4px !important;
+}
+
+.details-row-delete {
+    background: #dc3545;
+    color: white;
+    border: none;
+    border-radius: 2px;
+    padding: 2px 6px;
+    cursor: pointer;
+    font-size: 10px;
+    line-height: 1.2;
+}
+
+.details-row-delete:hover {
+    background: #c82333;
+}
+
+/* Ligne de totaux */
+.details-total-row {
+    background: #f8f9fa !important;
+    font-weight: bold;
+    font-size: 11px;
+}
+
+.details-total-row td {
+    padding: 8px 6px !important;
+    color: #495057;
+}
+
+/* Headers triables */
+.details-sortable-header {
+    cursor: pointer;
+    user-select: none;
+    position: relative;
+    padding-right: 18px !important;
+}
+
+.details-sortable-header:hover {
+    background: #e9ecef;
+}
+
+.details-sort-icon {
+    position: absolute;
+    right: 4px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 9px;
+    color: #6c757d;
+}
+
+.details-sort-asc .details-sort-icon::before {
+    content: "▲";
+    color: #007bff;
+}
+
+.details-sort-desc .details-sort-icon::before {
+    content: "▼";
+    color: #007bff;
+}
+
+/* Labels d'unité */
+.details-unit-label {
+    font-size: 10px;
+    color: #6c757d;
+    font-weight: normal;
+}
+
+/* Messages de validation */
+.details-validation-message {
+    margin-top: 10px;
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-size: 12px;
+    display: none;
+}
+
+.details-validation-success {
+    background: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.details-validation-error {
+    background: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+.details-validation-info {
+    background: #d1ecf1;
+    color: #0c5460;
+    border: 1px solid #bee5eb;
+}
+
+.details-validation-warning {
+    background: #fff3cd;
+    color: #856404;
+    border: 1px solid #ffeaa7;
+}
+
+/* Footer du modal */
+.details-modal-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+    background: #f8f9fa;
+    border-top: 1px solid #dee2e6;
+    flex-shrink: 0;
+}
+
+.details-modal-footer .details-tip {
+    font-size: 11px;
+    color: #6c757d;
+    font-style: italic;
+}
+
+/* Responsiveness */
+@media (max-width: 768px) {
+    .details-modal-content {
+        margin: 1% auto;
+        width: 98%;
+        max-height: 95vh;
+    }
+    
+    .details-modal-header h3 {
+        font-size: 14px;
+    }
+    
+    .details-modal-body {
+        padding: 15px;
+    }
+    
+    .details-toolbar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .details-btn {
+        text-align: center;
+        margin-bottom: 5px;
+    }
+    
+    .details-spreadsheet-table {
+        font-size: 11px;
+    }
+    
+    .details-spreadsheet-table th,
+    .details-spreadsheet-table td {
+        padding: 4px 2px;
+    }
+    
+    .details-cell-input {
+        font-size: 11px;
+        padding: 4px 2px;
+    }
+}
+
+/* Indicateur de détails sur la ligne de commande */
+.details-summary {
+    font-size: 11px;
+    color: #6c757d;
+    margin-left: 8px;
+    font-style: italic;
+}
+
+.details-has-content {
+    color: #28a745 !important;
+    font-weight: 500;
+}
+
+/* Bouton d'ouverture des détails */
+.details-btn-open {
+    font-size: 11px;
+    padding: 2px 6px;
+    margin-left: 5px;
+    background: #17a2b8;
+    color: white;
+    border: 1px solid #17a2b8;
+    border-radius: 2px;
+    text-decoration: none;
+}
+
+.details-btn-open:hover {
+    background: #138496;
+    border-color: #117a8b;
+    color: white;
+    text-decoration: none;
+}
+
+/* Animation de chargement */
+.details-loading {
+    text-align: center;
+    padding: 20px;
+    color: #6c757d;
+}
+
+.details-loading::after {
+    content: "...";
+    animation: details-dots 1.5s infinite;
+}
+
+@keyframes details-dots {
+    0%, 20% { content: ""; }
+    40% { content: "."; }
+    60% { content: ".."; }
+    80%, 100% { content: "..."; }
+}
+
+/* Styles pour les colonnes spécifiques */
+.details-col-pieces { width: 80px; }
+.details-col-longueur { width: 100px; }
+.details-col-largeur { width: 100px; }
+.details-col-total { width: 100px; }
+.details-col-description { width: 200px; }
+.details-col-actions { width: 50px; }
+
+/* Alignements */
+.details-text-center { text-align: center; }
+.details-text-right { text-align: right; }
+.details-text-left { text-align: left; }
+
+/* États */
+.details-disabled {
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+.details-hidden {
+    display: none !important;
+}
+
+.details-visible {
+    display: block !important;
+}
+
+
+/* ========================================
+   STYLES POUR LE MODAL DE MISE À JOUR DE LABEL
+   (product_type = 9)
+   ======================================== */
+
+/* Formulaire de label */
+.label-form {
+    max-width: 600px;
+}
+
+.label-form-group {
+    margin-bottom: 20px;
+}
+
+.label-form-group label {
+    display: block;
+    font-weight: 600;
+    font-size: 13px;
+    color: #495057;
+    margin-bottom: 6px;
+}
+
+.label-form-input {
+    width: 100%;
+    padding: 8px 12px;
+    font-size: 14px;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    box-sizing: border-box;
+    font-family: inherit;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.label-form-input:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+.label-form-input:disabled {
+    background-color: #e9ecef;
+    cursor: not-allowed;
+}
+
+/* Styles pour le select */
+.label-form-input select,
+select.label-form-input {
+    appearance: none;
+    background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23495057%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E');
+    background-repeat: no-repeat;
+    background-position: right 8px top 50%;
+    background-size: 12px;
+    padding-right: 30px;
+}
+
+/* Aperçu du label */
+.label-preview {
+    margin-top: 20px;
+    padding: 12px;
+    background: #f8f9fa;
+    border-left: 4px solid #007bff;
+    border-radius: 4px;
+}
+
+.label-preview strong {
+    display: block;
+    margin-bottom: 8px;
+    color: #495057;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.label-preview #labelPreviewText {
+    font-size: 14px;
+    color: #212529;
+    font-style: normal;
+    line-height: 1.5;
+}
+
+/* Animation de focus personnalisée */
+@keyframes label-input-focus {
+    0% { box-shadow: 0 0 0 0 rgba(0, 123, 255, 0.4); }
+    100% { box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25); }
+}
+
+.label-form-input:focus {
+    animation: label-input-focus 0.3s ease-out;
+}
+
+/* Adaptations responsives pour le formulaire de label */
+@media (max-width: 768px) {
+    .label-form-group {
+        margin-bottom: 15px;
+    }
+    
+    .label-form-group label {
+        font-size: 12px;
+    }
+    
+    .label-form-input {
+        font-size: 13px;
+        padding: 6px 10px;
+    }
+    
+    .label-preview {
+        padding: 10px;
+        font-size: 12px;
+    }
+    
+    .label-preview #labelPreviewText {
+        font-size: 13px;
+    }
+}
+
+/* État de chargement pour le formulaire de label */
+.label-form-loading {
+    position: relative;
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+.label-form-loading::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 20px;
+    height: 20px;
+    margin: -10px 0 0 -10px;
+    border: 2px solid #007bff;
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: label-spinner 0.6s linear infinite;
+}
+
+@keyframes label-spinner {
+    to { transform: rotate(360deg); }
+}
+
+/* Style pour les champs requis */
+.label-form-group.required label::after {
+    content: " *";
+    color: #dc3545;
+}
+
+/* Tooltip informatif */
+.label-form-help {
+    font-size: 11px;
+    color: #6c757d;
+    margin-top: 4px;
+    font-style: italic;
+}
+
+/* Styles pour l'erreur de validation inline */
+.label-form-error {
+    color: #dc3545;
+    font-size: 12px;
+    margin-top: 4px;
+    display: none;
+}
+
+.label-form-group.has-error .label-form-input {
+    border-color: #dc3545;
+}
+
+.label-form-group.has-error .label-form-error {
+    display: block;
+}
+
+/* Success state */
+.label-form-group.has-success .label-form-input {
+    border-color: #28a745;
+}
