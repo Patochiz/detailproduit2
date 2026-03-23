@@ -630,9 +630,17 @@ function saveDetails() {
             showValidationMessage('Détails sauvegardés ! (' + details.length + ' lignes)', 'success');
 
             // Auto-update order line quantity
-            updateCommandQuantityAutomatic().finally(function() {
+            updateCommandQuantityAutomatic()
+            .then(function() {
                 closeDetailsModal();
                 setTimeout(function() { window.location.reload(); }, 1000);
+            })
+            .catch(function(err) {
+                showValidationMessage('Détails sauvegardés. Erreur mise à jour quantité: ' + (err.message || ''), 'error');
+                setTimeout(function() {
+                    closeDetailsModal();
+                    window.location.reload();
+                }, 3000);
             });
         } else {
             showValidationMessage('Erreur: ' + (data.error || 'Erreur inconnue'), 'error');

@@ -269,22 +269,22 @@ class CommandeDetDetails extends CommonObject
 
 		$new_quantity = round((float) $new_quantity, 2);
 
-		// Preserve existing extrafields
-		$existing_options = null;
-		$sql_ef = "SELECT * FROM ".MAIN_DB_PREFIX."commandedet_extrafields";
+		// Fetch current extrafields to restore them after updateline()
+		// (updateline() calls insertExtraFields() which may corrupt HTML content in 'detail')
+		$saved_detailjson = null;
+		$saved_detail = null;
+		$sql_ef = "SELECT detailjson, detail FROM ".MAIN_DB_PREFIX."commandedet_extrafields";
 		$sql_ef .= " WHERE fk_object = ".((int) $fk_commandedet);
 		$resql_ef = $this->db->query($sql_ef);
 		if ($resql_ef && $this->db->num_rows($resql_ef) > 0) {
 			$obj_ef = $this->db->fetch_object($resql_ef);
-			$existing_options = array();
-			foreach ($obj_ef as $key => $value) {
-				if ($key !== 'fk_object' && $key !== 'rowid') {
-					$existing_options['options_'.$key] = $value;
-				}
-			}
+			$saved_detailjson = $obj_ef->detailjson;
+			$saved_detail = $obj_ef->detail;
 			$this->db->free($resql_ef);
 		}
 
+		// Call updateline() with empty array_options to avoid insertExtraFields() failing
+		// on HTML content in 'detail' field (which would prevent qty from being updated too)
 		$result = $commande->updateline(
 			$fk_commandedet,
 			$line->description,
@@ -305,15 +305,29 @@ class CommandeDetDetails extends CommonObject
 			$line->buy_price_ht,
 			$line->label,
 			$line->special_code,
-			$existing_options,
+			array(),
 			$line->fk_unit,
 			$line->multicurrency_subprice,
 			$line->rang
 		);
 
 		if ($result < 0) {
-			$this->errors[] = 'Error updating line: '.implode(', ', $commande->errors);
-			return -1;
+			// Fallback: direct SQL update of qty if updateline() is unavailable (e.g. confirmed order)
+			$sql_qty = "UPDATE ".MAIN_DB_PREFIX."commandedet SET qty = ".((float) $new_quantity);
+			$sql_qty .= " WHERE rowid = ".((int) $fk_commandedet);
+			if (!$this->db->query($sql_qty)) {
+				$this->errors[] = 'Error updating qty: '.$this->db->lasterror();
+				return -1;
+			}
+		}
+
+		// Re-save detailjson and detail via direct SQL (updateline() with empty options clears them)
+		if ($saved_detailjson !== null || $saved_detail !== null) {
+			$sql_restore = "UPDATE ".MAIN_DB_PREFIX."commandedet_extrafields";
+			$sql_restore .= " SET detailjson = '".$this->db->escape($saved_detailjson)."'";
+			$sql_restore .= ", detail = '".$this->db->escape($saved_detail)."'";
+			$sql_restore .= " WHERE fk_object = ".((int) $fk_commandedet);
+			$this->db->query($sql_restore);
 		}
 
 		return 1;
