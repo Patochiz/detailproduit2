@@ -120,7 +120,7 @@ class CommandeDetDetails extends CommonObject
 	 * @param  array  $details_array  Cleaned details
 	 * @return string                 HTML formatted string
 	 */
-	private function generateFormattedDetail($details_array)
+	public function generateFormattedDetail($details_array)
 	{
 		$lines = array();
 		foreach ($details_array as $detail) {
@@ -321,12 +321,26 @@ class CommandeDetDetails extends CommonObject
 			}
 		}
 
-		// Re-save detailjson and detail via direct SQL (updateline() with empty options clears them)
-		if ($saved_detailjson !== null || $saved_detail !== null) {
-			$sql_restore = "UPDATE ".MAIN_DB_PREFIX."commandedet_extrafields";
-			$sql_restore .= " SET detailjson = '".$this->db->escape($saved_detailjson)."'";
-			$sql_restore .= ", detail = '".$this->db->escape($saved_detail)."'";
-			$sql_restore .= " WHERE fk_object = ".((int) $fk_commandedet);
+		// Restore detailjson and detail via INSERT ... ON DUPLICATE KEY UPDATE
+		// This handles both cases: row still exists (UPDATE) or was deleted+recreated by
+		// insertExtraFields() with empty values (INSERT), which a plain UPDATE would miss.
+		if ($saved_detailjson !== null) {
+			// Regenerate detail from detailjson in case $saved_detail is stale/null
+			$saved_detail_final = $saved_detail;
+			if (empty($saved_detail_final)) {
+				$details_arr = json_decode($saved_detailjson, true);
+				if (is_array($details_arr)) {
+					$saved_detail_final = $this->generateFormattedDetail($details_arr);
+				}
+			}
+			$sql_restore  = "INSERT INTO ".MAIN_DB_PREFIX."commandedet_extrafields";
+			$sql_restore .= " (fk_object, detailjson, detail) VALUES";
+			$sql_restore .= " (".((int) $fk_commandedet);
+			$sql_restore .= ", '".$this->db->escape($saved_detailjson)."'";
+			$sql_restore .= ", '".$this->db->escape($saved_detail_final)."')";
+			$sql_restore .= " ON DUPLICATE KEY UPDATE";
+			$sql_restore .= " detailjson = '".$this->db->escape($saved_detailjson)."'";
+			$sql_restore .= ", detail = '".$this->db->escape($saved_detail_final)."'";
 			$this->db->query($sql_restore);
 		}
 
