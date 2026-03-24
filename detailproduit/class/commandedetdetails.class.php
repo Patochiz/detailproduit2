@@ -284,7 +284,9 @@ class CommandeDetDetails extends CommonObject
 		}
 
 		// Call updateline() with empty array_options to avoid insertExtraFields() failing
-		// on HTML content in 'detail' field (which would prevent qty from being updated too)
+		// on HTML content in 'detail' field (which would prevent qty from being updated too).
+		// Pass notrigger=1 to prevent LINEORDER_MODIFY from firing: another module may
+		// intercept it and duplicate the line.
 		$result = $commande->updateline(
 			$fk_commandedet,
 			$line->description,
@@ -308,7 +310,7 @@ class CommandeDetDetails extends CommonObject
 			array(),
 			$line->fk_unit,
 			$line->multicurrency_subprice,
-			$line->rang
+			1   // notrigger = 1: suppress LINEORDER_MODIFY trigger
 		);
 
 		if ($result < 0) {
