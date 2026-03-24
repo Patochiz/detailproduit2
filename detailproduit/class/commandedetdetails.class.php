@@ -283,43 +283,39 @@ class CommandeDetDetails extends CommonObject
 			$this->db->free($resql_ef);
 		}
 
-		// Call updateline() with empty array_options to avoid insertExtraFields() failing
-		// on HTML content in 'detail' field (which would prevent qty from being updated too)
-		$result = $commande->updateline(
-			$fk_commandedet,
-			$line->description,
-			$line->subprice,
-			$new_quantity,
-			$line->remise_percent,
-			$line->tva_tx,
-			$line->localtax1_tx,
-			$line->localtax2_tx,
-			'HT',
-			$line->info_bits,
-			$line->date_start,
-			$line->date_end,
-			$line->product_type,
-			$line->fk_parent_line,
-			0,
-			0,
-			$line->buy_price_ht,
-			$line->label,
-			$line->special_code,
-			array(),
-			$line->fk_unit,
-			$line->multicurrency_subprice,
-			$line->rang
-		);
+		// Direct SQL: update qty and recalculate line totals.
+		// We intentionally bypass $commande->updateline() because it causes line duplication
+		// on this Dolibarr setup (confirmed by logs showing a second commandedet row after
+		// updateline() runs, regardless of the notrigger flag).
+		$pu        = (float) $line->subprice;
+		$new_qty_f = (float) $new_quantity;
+		$remise    = (float) $line->remise_percent;
+		$tva_tx    = (float) $line->tva_tx;
+		$ltax1_tx  = (float) $line->localtax1_tx;
+		$ltax2_tx  = (float) $line->localtax2_tx;
 
-		if ($result < 0) {
-			// Fallback: direct SQL update of qty if updateline() is unavailable (e.g. confirmed order)
-			$sql_qty = "UPDATE ".MAIN_DB_PREFIX."commandedet SET qty = ".((float) $new_quantity);
-			$sql_qty .= " WHERE rowid = ".((int) $fk_commandedet);
-			if (!$this->db->query($sql_qty)) {
-				$this->errors[] = 'Error updating qty: '.$this->db->lasterror();
-				return -1;
-			}
+		$total_ht    = round($pu * $new_qty_f * (1 - $remise / 100), 6);
+		$total_tva   = round($total_ht * $tva_tx / 100, 6);
+		$total_ltax1 = round($total_ht * $ltax1_tx / 100, 6);
+		$total_ltax2 = round($total_ht * $ltax2_tx / 100, 6);
+		$total_ttc   = $total_ht + $total_tva + $total_ltax1 + $total_ltax2;
+
+		$sql_qty  = "UPDATE ".MAIN_DB_PREFIX."commandedet";
+		$sql_qty .= " SET qty = ".((float) $new_qty_f);
+		$sql_qty .= ", total_ht = ".((float) $total_ht);
+		$sql_qty .= ", total_tva = ".((float) $total_tva);
+		$sql_qty .= ", total_localtax1 = ".((float) $total_ltax1);
+		$sql_qty .= ", total_localtax2 = ".((float) $total_ltax2);
+		$sql_qty .= ", total_ttc = ".((float) $total_ttc);
+		$sql_qty .= " WHERE rowid = ".((int) $fk_commandedet);
+
+		if (!$this->db->query($sql_qty)) {
+			$this->errors[] = 'Error updating qty: '.$this->db->lasterror();
+			return -1;
 		}
+
+		// Refresh order header totals from the updated line totals
+		$commande->update_price(1);
 
 		// Restore detailjson and detail via INSERT ... ON DUPLICATE KEY UPDATE
 		// This handles both cases: row still exists (UPDATE) or was deleted+recreated by
