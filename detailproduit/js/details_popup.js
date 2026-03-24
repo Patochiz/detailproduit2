@@ -633,13 +633,19 @@ function saveDetails() {
             updateCommandQuantityAutomatic()
             .then(function() {
                 closeDetailsModal();
-                setTimeout(function() { window.location.reload(); }, 1000);
+                setTimeout(function() {
+                    var params = new URLSearchParams(window.location.search);
+                    var orderId = params.get('id');
+                    window.location.href = window.location.pathname + (orderId ? '?id=' + encodeURIComponent(orderId) : '');
+                }, 1000);
             })
             .catch(function(err) {
                 showValidationMessage('Détails sauvegardés. Erreur mise à jour quantité: ' + (err.message || ''), 'error');
                 setTimeout(function() {
                     closeDetailsModal();
-                    window.location.reload();
+                    var params = new URLSearchParams(window.location.search);
+                    var orderId = params.get('id');
+                    window.location.href = window.location.pathname + (orderId ? '?id=' + encodeURIComponent(orderId) : '');
                 }, 3000);
             });
         } else {
