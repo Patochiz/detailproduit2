@@ -637,7 +637,8 @@
                 
                 setTimeout(function() {
                     closeLabelUpdateModal();
-                    window.location.reload();
+                    var loc = window.location;
+                    window.location.href = loc.pathname + loc.search;
                 }, 1500);
             } else {
                 // ✅ RÉACTIVER en cas d'échec
