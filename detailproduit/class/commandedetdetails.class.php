@@ -124,7 +124,7 @@ class CommandeDetDetails extends CommonObject
 	 */
 	public function generateFormattedDetail($details_array)
 	{
-		$lines = array();
+		$rows = '';
 		foreach ($details_array as $detail) {
 			$pieces = (int) $detail['pieces'];
 			$longueur = !empty($detail['longueur']) ? (int) $detail['longueur'] : null;
@@ -132,17 +132,20 @@ class CommandeDetDetails extends CommonObject
 			$total = number_format($detail['total_value'], 2, '.', '');
 			$unit = $detail['unit'];
 			$desc = htmlspecialchars($detail['description'] ?? '', ENT_QUOTES, 'UTF-8');
+			$color = !empty($detail['color']) && preg_match('/^#[0-9A-Fa-f]{6}$/', $detail['color']) ? $detail['color'] : '';
 
 			$parts = array($pieces);
 			if ($longueur !== null) $parts[] = $longueur;
 			if ($largeur !== null) $parts[] = $largeur;
 
-			$line = implode(' x ', $parts).' ('.$total.' '.$unit.')';
-			if (!empty($desc)) $line .= ' '.$desc;
+			$cell = implode(' x ', $parts).' ('.$total.' '.$unit.')';
+			if (!empty($desc)) $cell .= ' '.$desc;
+			$cell = htmlspecialchars($cell, ENT_QUOTES, 'UTF-8');
 
-			$lines[] = $line;
+			$style = $color ? ' style="background-color:'.htmlspecialchars($color, ENT_QUOTES, 'UTF-8').';"' : '';
+			$rows .= '<tr><td>'.($color ? '<span'.$style.'>'.$cell.'</span>' : $cell).'</td></tr>';
 		}
-		return implode('<br>', $lines);
+		return '<table border="0" cellpadding="0" cellspacing="0" style="width:100%"><tbody>'.$rows.'</tbody></table>';
 	}
 
 	/**

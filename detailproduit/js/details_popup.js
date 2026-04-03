@@ -441,8 +441,8 @@ function removeDetailsRow(button) {
 // --- Color Picker ---
 
 var DETAIL_COLORS = [
-    '#FFF9C4', '#FFE0B2', '#C8E6C9', '#BBDEFB',
-    '#F8BBD9', '#FFCDD2', '#E1BEE7', '#D7CCC8'
+    '#ffff00', '#ffa500', '#00cc00', '#00aaff',
+    '#ff69b4', '#ff3333', '#cc66ff', '#aaaaaa'
 ];
 
 function showColorPicker(rowId, btn) {
@@ -467,8 +467,10 @@ function showColorPicker(rowId, btn) {
     clearBtn.onclick = function(e) { e.stopPropagation(); applyRowColor(rowId, ''); };
     palette.appendChild(clearBtn);
 
-    btn.parentNode.style.position = 'relative';
-    btn.parentNode.appendChild(palette);
+    var rect = btn.getBoundingClientRect();
+    palette.style.top = rect.bottom + 'px';
+    palette.style.left = (rect.right - 130) + 'px';
+    document.body.appendChild(palette);
 
     setTimeout(function() {
         document.addEventListener('click', closeColorPicker, { once: true });

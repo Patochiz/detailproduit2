@@ -279,9 +279,7 @@
 
 /* Palette flottante */
 .details-color-palette {
-    position: absolute;
-    right: 0;
-    top: 100%;
+    position: fixed;
     background: white;
     border: 1px solid #ccc;
     border-radius: 6px;
