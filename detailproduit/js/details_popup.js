@@ -414,8 +414,6 @@ function addDetailsRow(data) {
     var id = ++rowCounter;
 
     var rowColor = (data && data.color) ? data.color : '';
-    if (rowColor) row.style.backgroundColor = rowColor;
-    if (rowColor) row.dataset.color = rowColor;
 
     row.innerHTML =
         '<td><input type="number" class="details-cell-input details-cell-number" id="pieces_' + id + '" value="' + (data ? data.pieces : '') + '" min="1" step="1" placeholder="1" onchange="calculateRowTotal(' + id + ')" onkeydown="handleKeyNavigation(event,' + id + ',0)"></td>' +
@@ -426,7 +424,7 @@ function addDetailsRow(data) {
         '<td class="details-row-actions"><button class="details-row-color-btn" onclick="showColorPicker(' + id + ', this)" title="Couleur de surlignage">\ud83c\udfa8</button><button class="details-row-delete" onclick="removeDetailsRow(this)" title="Supprimer">\u2716</button></td>';
 
     tableBody.appendChild(row);
-    if (rowColor) row.dataset.color = rowColor;
+    if (rowColor) { row.style.backgroundColor = rowColor; row.dataset.color = rowColor; }
     if (data) calculateRowTotal(id);
 
     setTimeout(function() {
