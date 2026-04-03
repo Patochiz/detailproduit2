@@ -258,6 +258,74 @@
     background: #c82333;
 }
 
+/* Bouton color picker dans la ligne */
+.details-row-color-btn {
+    background: none;
+    border: 1px solid #ccc;
+    border-radius: 2px;
+    cursor: pointer;
+    font-size: 12px;
+    padding: 2px 4px;
+    margin-right: 3px;
+    opacity: 0.7;
+    line-height: 1.2;
+    transition: opacity 0.2s;
+}
+
+.details-row-color-btn:hover {
+    opacity: 1;
+    border-color: #999;
+}
+
+/* Palette flottante */
+.details-color-palette {
+    position: absolute;
+    right: 0;
+    top: 100%;
+    background: white;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    padding: 6px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    width: 130px;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+    z-index: 9999;
+}
+
+/* Chaque swatch couleur */
+.details-color-swatch {
+    display: inline-block;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    border: 2px solid #ddd;
+    cursor: pointer;
+    transition: border-color 0.15s, transform 0.15s;
+}
+
+.details-color-swatch:hover {
+    border-color: #333;
+    transform: scale(1.15);
+}
+
+/* Bouton effacer */
+.details-color-clear {
+    font-size: 11px;
+    padding: 2px 5px;
+    cursor: pointer;
+    border: 1px solid #999;
+    border-radius: 4px;
+    background: #f5f5f5;
+    width: 100%;
+    text-align: center;
+}
+
+.details-color-clear:hover {
+    background: #e0e0e0;
+}
+
 /* Ligne de totaux */
 .details-total-row {
     background: #f8f9fa !important;
