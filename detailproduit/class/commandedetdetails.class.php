@@ -142,8 +142,8 @@ class CommandeDetDetails extends CommonObject
 			if (!empty($desc)) $cell .= ' '.$desc;
 			$cell = htmlspecialchars($cell, ENT_QUOTES, 'UTF-8');
 
-			$style = $color ? ' style="background-color:'.htmlspecialchars($color, ENT_QUOTES, 'UTF-8').'"' : '';
-			$rows .= '<tr><td'.$style.'>'.$cell.'</td></tr>';
+			$style = $color ? ' style="background-color:'.htmlspecialchars($color, ENT_QUOTES, 'UTF-8').';"' : '';
+			$rows .= '<tr><td>'.($color ? '<span'.$style.'>'.$cell.'</span>' : $cell).'</td></tr>';
 		}
 		return '<table border="0" cellpadding="0" cellspacing="0" style="width:100%"><tbody>'.$rows.'</tbody></table>';
 	}
