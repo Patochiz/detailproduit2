@@ -468,8 +468,8 @@ function showColorPicker(rowId, btn) {
     palette.appendChild(clearBtn);
 
     var rect = btn.getBoundingClientRect();
-    palette.style.top = (rect.bottom + window.scrollY) + 'px';
-    palette.style.left = (rect.right + window.scrollX - 130) + 'px';
+    palette.style.top = rect.bottom + 'px';
+    palette.style.left = (rect.right - 130) + 'px';
     document.body.appendChild(palette);
 
     setTimeout(function() {
