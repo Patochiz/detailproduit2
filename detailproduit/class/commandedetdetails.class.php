@@ -92,6 +92,7 @@ class CommandeDetDetails extends CommonObject
 				'total_value' => (float) $detail['total_value'],
 				'unit' => (string) $detail['unit'],
 				'description' => (string) ($detail['description'] ?? ''),
+				'color' => (string) ($detail['color'] ?? ''),
 			);
 		}
 
