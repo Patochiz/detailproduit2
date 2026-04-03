@@ -142,6 +142,9 @@ elseif ($action == 'save_details') {
 			$largeur = !empty($detail_data['largeur']) ? (float) $detail_data['largeur'] : null;
 			$calc = CommandeDetDetails::calculateUnitAndValue($pieces, $longueur, $largeur);
 
+			$raw_color = isset($detail_data['color']) ? trim($detail_data['color']) : '';
+			$color = preg_match('/^#[0-9A-Fa-f]{6}$/', $raw_color) ? $raw_color : '';
+
 			$validated_details[] = array(
 				'pieces' => $pieces,
 				'longueur' => $longueur,
@@ -149,6 +152,7 @@ elseif ($action == 'save_details') {
 				'total_value' => $calc['total_value'],
 				'unit' => $calc['unit'],
 				'description' => substr(trim($detail_data['description'] ?? ''), 0, 255),
+				'color' => $color,
 			);
 		}
 	}
@@ -163,6 +167,8 @@ elseif ($action == 'save_details') {
 				$longueur = (!empty($detail['longueur']) && is_numeric($detail['longueur'])) ? (float) $detail['longueur'] : null;
 				$largeur = (!empty($detail['largeur']) && is_numeric($detail['largeur'])) ? (float) $detail['largeur'] : null;
 				$calc = CommandeDetDetails::calculateUnitAndValue($pieces, $longueur, $largeur);
+				$raw_color = isset($detail['color']) ? trim($detail['color']) : '';
+				$color = preg_match('/^#[0-9A-Fa-f]{6}$/', $raw_color) ? $raw_color : '';
 
 				$validated_details[] = array(
 					'pieces' => $pieces,
@@ -171,6 +177,7 @@ elseif ($action == 'save_details') {
 					'total_value' => $calc['total_value'],
 					'unit' => $calc['unit'],
 					'description' => substr(trim($detail['description'] ?? ''), 0, 255),
+					'color' => $color,
 				);
 			}
 		}

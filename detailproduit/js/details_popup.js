@@ -413,15 +413,18 @@ function addDetailsRow(data) {
     var row = document.createElement('tr');
     var id = ++rowCounter;
 
+    var rowColor = (data && data.color) ? data.color : '';
+
     row.innerHTML =
         '<td><input type="number" class="details-cell-input details-cell-number" id="pieces_' + id + '" value="' + (data ? data.pieces : '') + '" min="1" step="1" placeholder="1" onchange="calculateRowTotal(' + id + ')" onkeydown="handleKeyNavigation(event,' + id + ',0)"></td>' +
         '<td><input type="number" class="details-cell-input details-cell-number" id="longueur_' + id + '" value="' + (data && data.longueur ? data.longueur : '') + '" min="0" step="0.1" placeholder="0" onchange="calculateRowTotal(' + id + ')" onkeydown="handleKeyNavigation(event,' + id + ',1)"></td>' +
         '<td><input type="number" class="details-cell-input details-cell-number" id="largeur_' + id + '" value="' + (data && data.largeur ? data.largeur : '') + '" min="0" step="0.1" placeholder="0" onchange="calculateRowTotal(' + id + ')" onkeydown="handleKeyNavigation(event,' + id + ',2)"></td>' +
         '<td class="details-cell-calculated"><span id="total_' + id + '" data-value="0" data-unit="">0 u</span></td>' +
         '<td><input type="text" class="details-cell-input" id="description_' + id + '" value="' + (data && data.description ? data.description : '') + '" placeholder="Description..." onkeydown="handleKeyNavigation(event,' + id + ',4)"></td>' +
-        '<td class="details-row-actions"><button class="details-row-delete" onclick="removeDetailsRow(this)" title="Supprimer">\u2716</button></td>';
+        '<td class="details-row-actions"><button class="details-row-color-btn" onclick="showColorPicker(' + id + ', this)" title="Couleur de surlignage">\ud83c\udfa8</button><button class="details-row-delete" onclick="removeDetailsRow(this)" title="Supprimer">\u2716</button></td>';
 
     tableBody.appendChild(row);
+    if (rowColor) { row.style.backgroundColor = rowColor; row.dataset.color = rowColor; }
     if (data) calculateRowTotal(id);
 
     setTimeout(function() {
@@ -433,6 +436,57 @@ function addDetailsRow(data) {
 function removeDetailsRow(button) {
     button.closest('tr').remove();
     calculateTotals();
+}
+
+// --- Color Picker ---
+
+var DETAIL_COLORS = [
+    '#FFF9C4', '#FFE0B2', '#C8E6C9', '#BBDEFB',
+    '#F8BBD9', '#FFCDD2', '#E1BEE7', '#D7CCC8'
+];
+
+function showColorPicker(rowId, btn) {
+    closeColorPicker();
+
+    var palette = document.createElement('div');
+    palette.className = 'details-color-palette';
+    palette.id = 'detailsColorPalette';
+
+    DETAIL_COLORS.forEach(function(color) {
+        var swatch = document.createElement('span');
+        swatch.className = 'details-color-swatch';
+        swatch.style.backgroundColor = color;
+        swatch.title = color;
+        swatch.onclick = function(e) { e.stopPropagation(); applyRowColor(rowId, color); };
+        palette.appendChild(swatch);
+    });
+
+    var clearBtn = document.createElement('button');
+    clearBtn.className = 'details-color-clear';
+    clearBtn.textContent = 'Effacer';
+    clearBtn.onclick = function(e) { e.stopPropagation(); applyRowColor(rowId, ''); };
+    palette.appendChild(clearBtn);
+
+    btn.parentNode.style.position = 'relative';
+    btn.parentNode.appendChild(palette);
+
+    setTimeout(function() {
+        document.addEventListener('click', closeColorPicker, { once: true });
+    }, 0);
+}
+
+function applyRowColor(rowId, color) {
+    var input = document.getElementById('pieces_' + rowId);
+    if (!input) return;
+    var row = input.closest('tr');
+    row.style.backgroundColor = color;
+    row.dataset.color = color;
+    closeColorPicker();
+}
+
+function closeColorPicker() {
+    var existing = document.getElementById('detailsColorPalette');
+    if (existing) existing.remove();
 }
 
 // --- Calculations ---
@@ -579,6 +633,7 @@ function saveDetails() {
         var tCell = row.querySelector('[id^="total_"]');
         var totalValue = tCell ? parseFloat(tCell.getAttribute('data-value')) || 0 : 0;
         var unit = tCell ? tCell.getAttribute('data-unit') || 'u' : 'u';
+        var color = row.dataset.color || '';
 
         details.push({
             pieces: pieces,
@@ -586,7 +641,8 @@ function saveDetails() {
             largeur: largeur > 0 ? largeur : null,
             total_value: totalValue,
             unit: unit,
-            description: desc
+            description: desc,
+            color: color
         });
     });
 
@@ -610,6 +666,7 @@ function saveDetails() {
         formData.append('detail[' + i + '][total_value]', String(d.total_value));
         formData.append('detail[' + i + '][unit]', d.unit);
         formData.append('detail[' + i + '][description]', d.description);
+        formData.append('detail[' + i + '][color]', d.color || '');
     });
 
     fetch(ajaxUrl, { method: 'POST', body: formData })
