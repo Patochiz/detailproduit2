@@ -467,8 +467,10 @@ function showColorPicker(rowId, btn) {
     clearBtn.onclick = function(e) { e.stopPropagation(); applyRowColor(rowId, ''); };
     palette.appendChild(clearBtn);
 
-    btn.parentNode.style.position = 'relative';
-    btn.parentNode.appendChild(palette);
+    var rect = btn.getBoundingClientRect();
+    palette.style.top = (rect.bottom + window.scrollY) + 'px';
+    palette.style.left = (rect.right + window.scrollX - 130) + 'px';
+    document.body.appendChild(palette);
 
     setTimeout(function() {
         document.addEventListener('click', closeColorPicker, { once: true });
