@@ -575,13 +575,7 @@ if ($result < 0) {
             'success' => true,
             'message' => 'Label updated successfully',
             'new_label' => $new_label_html,
-            'new_label_text' => $label_text,
-            '_debug' => array(
-                'ref_commande_recu' => $ref_commande,
-                'detailjson_ecrit' => $new_detailjson,
-                'detailjson_verifie' => $verified_detailjson,
-                'exists' => $exists
-            )
+            'new_label_text' => $label_text
         ));
         exit;
     }
