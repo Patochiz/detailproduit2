@@ -399,6 +399,24 @@ if (!$line) {
     exit;
 }
 
+// Préparer le detailjson à jour dans array_options avant updateline
+// pour éviter que Dolibarr n'écrase avec les anciennes valeurs
+$existing_json_for_line = array();
+if (!empty($line->array_options['options_detailjson'])) {
+    $decoded_for_line = json_decode($line->array_options['options_detailjson'], true);
+    if (is_array($decoded_for_line)) {
+        $existing_json_for_line = $decoded_for_line;
+    }
+}
+$existing_json_for_line['n_commande']    = $n_commande;
+$existing_json_for_line['date_commande'] = $date_commande;
+$existing_json_for_line['contact_id']    = $contact_id ? (int)$contact_id : null;
+$existing_json_for_line['ref_chantier']  = $ref_commande;
+
+$line->array_options['options_detailjson']   = json_encode($existing_json_for_line);
+$line->array_options['options_ref_commande'] = $ref_commande;
+$line->array_options['options_ref_chantier'] = $label_text;
+
 // Mise à jour : uniquement la description HTML
 $result = $order->updateline(
     $line->rowid,                      // 1. rowid
