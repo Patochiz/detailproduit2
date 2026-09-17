@@ -518,11 +518,13 @@ if ($result < 0) {
         }
 
         // Vérification : relire detailjson pour confirmer la sauvegarde
+        $verified_detailjson = '';
         $sql_verify = "SELECT detailjson FROM ".MAIN_DB_PREFIX."commandedet_extrafields WHERE fk_object = ".((int) $commandedet_id);
         $resql_verify = $db->query($sql_verify);
         if ($resql_verify && $db->num_rows($resql_verify) > 0) {
             $obj_verify = $db->fetch_object($resql_verify);
-            debug_log("VERIFICATION detailjson en base: " . ($obj_verify->detailjson ?: '(vide)'));
+            $verified_detailjson = $obj_verify->detailjson ?: '';
+            debug_log("VERIFICATION detailjson en base: " . ($verified_detailjson ?: '(vide)'));
         } else {
             debug_log("VERIFICATION: aucune ligne extrafield trouvée pour fk_object=" . $commandedet_id);
         }
@@ -573,7 +575,13 @@ if ($result < 0) {
             'success' => true,
             'message' => 'Label updated successfully',
             'new_label' => $new_label_html,
-            'new_label_text' => $label_text  // Renvoyer aussi le texte pour l'aperçu JS
+            'new_label_text' => $label_text,
+            '_debug' => array(
+                'ref_commande_recu' => $ref_commande,
+                'detailjson_ecrit' => $new_detailjson,
+                'detailjson_verifie' => $verified_detailjson,
+                'exists' => $exists
+            )
         ));
         exit;
     }

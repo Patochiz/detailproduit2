@@ -634,6 +634,12 @@
             if (data.success) {
                 showLabelValidationMessage('✅ Label mis à jour avec succès !', 'success');
                 console.log('✅ Sauvegarde réussie:', data);
+                if (data._debug) {
+                    console.log('🔍 DEBUG ref_commande reçu par PHP:', data._debug.ref_commande_recu);
+                    console.log('🔍 DEBUG detailjson écrit:', data._debug.detailjson_ecrit);
+                    console.log('🔍 DEBUG detailjson vérifié en base:', data._debug.detailjson_verifie);
+                    console.log('🔍 DEBUG exists:', data._debug.exists);
+                }
                 
                 setTimeout(function() {
                     closeLabelUpdateModal();
