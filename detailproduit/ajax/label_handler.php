@@ -399,25 +399,9 @@ if (!$line) {
     exit;
 }
 
-// Préparer le detailjson à jour dans array_options avant updateline
-// pour éviter que Dolibarr n'écrase avec les anciennes valeurs
-$existing_json_for_line = array();
-if (!empty($line->array_options['options_detailjson'])) {
-    $decoded_for_line = json_decode($line->array_options['options_detailjson'], true);
-    if (is_array($decoded_for_line)) {
-        $existing_json_for_line = $decoded_for_line;
-    }
-}
-$existing_json_for_line['n_commande']    = $n_commande;
-$existing_json_for_line['date_commande'] = $date_commande;
-$existing_json_for_line['contact_id']    = $contact_id ? (int)$contact_id : null;
-$existing_json_for_line['ref_chantier']  = $ref_commande;
-
-$line->array_options['options_detailjson']   = json_encode($existing_json_for_line);
-$line->array_options['options_ref_commande'] = $ref_commande;
-$line->array_options['options_ref_chantier'] = $label_text;
-
-// Mise à jour : uniquement la description HTML
+// Mise à jour de la description via updateline
+// On passe 0 pour array_options afin que Dolibarr ne touche pas aux extrafields
+// (sinon insertExtraFields() écrase nos valeurs de detailjson)
 $result = $order->updateline(
     $line->rowid,                      // 1. rowid
     $label_text,               // 2. description (HTML)
@@ -438,7 +422,7 @@ $result = $order->updateline(
     $line->pa_ht,                  // 17
     $line->label,                  // 18. label texte simple
     $line->special_code,           // 19
-    $line->array_options,          // 20
+    0,                             // 20. array_options = 0 pour ne PAS appeler insertExtraFields
     $line->fk_unit,                // 21
     $line->multicurrency_subprice, // 22
     0,                             // 23. notrigger
@@ -458,20 +442,6 @@ if ($result < 0) {
     ));
     exit;
 }
-
-
-        if ($result < 0) {
-            debug_log("ERREUR updateline: " . $order->error);
-            debug_log("Erreurs: " . implode(', ', $order->errors));
-            
-            http_response_code(500);
-            echo json_encode(array(
-                'success' => false, 
-                'error' => 'Failed to update line: ' . $order->error,
-                'details' => $order->errors
-            ));
-            exit;
-        }
 
         debug_log("Ligne mise à jour via API Dolibarr");
 
@@ -545,6 +515,16 @@ if ($result < 0) {
             debug_log("- ref_commande: " . $ref_commande);
             debug_log("- ref_chantier (texte brut): " . $label_text);
             debug_log("- detailjson: " . $new_detailjson);
+        }
+
+        // Vérification : relire detailjson pour confirmer la sauvegarde
+        $sql_verify = "SELECT detailjson FROM ".MAIN_DB_PREFIX."commandedet_extrafields WHERE fk_object = ".((int) $commandedet_id);
+        $resql_verify = $db->query($sql_verify);
+        if ($resql_verify && $db->num_rows($resql_verify) > 0) {
+            $obj_verify = $db->fetch_object($resql_verify);
+            debug_log("VERIFICATION detailjson en base: " . ($obj_verify->detailjson ?: '(vide)'));
+        } else {
+            debug_log("VERIFICATION: aucune ligne extrafield trouvée pour fk_object=" . $commandedet_id);
         }
 
         // Mise à jour de l'extrafield designations_service_361 sur la commande
