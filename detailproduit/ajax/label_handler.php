@@ -238,17 +238,21 @@ try {
 
         if ($db->num_rows($resql) > 0) {
             $obj = $db->fetch_object($resql);
-            $data['ref_commande'] = $obj->ref_commande ?: '';
-            // Les champs du popup service sont stockés en JSON dans detailjson
+            // Tous les champs du popup service sont lus depuis detailjson
             if (!empty($obj->detailjson)) {
                 $json = json_decode($obj->detailjson, true);
                 if (is_array($json)) {
                     $data['n_commande']    = isset($json['n_commande'])    ? $json['n_commande']    : '';
                     $data['date_commande'] = isset($json['date_commande']) ? $json['date_commande'] : '';
                     $data['contact']       = isset($json['contact_id'])    ? $json['contact_id']    : '';
+                    $data['ref_commande']  = isset($json['ref_chantier'])  ? $json['ref_chantier']  : '';
                 }
             }
-            debug_log("Ref commande trouvée: " . $data['ref_commande']);
+            // Fallback sur la colonne extrafield si detailjson ne contient pas ref_chantier
+            if (empty($data['ref_commande'])) {
+                $data['ref_commande'] = $obj->ref_commande ?: '';
+            }
+            debug_log("Ref chantier trouvée: " . $data['ref_commande']);
             debug_log("N commande trouvée: " . $data['n_commande']);
             debug_log("Date commande trouvée: " . $data['date_commande']);
             debug_log("Contact ID trouvé: " . $data['contact']);
@@ -490,6 +494,7 @@ if ($result < 0) {
         $existing_json['n_commande']    = $n_commande;
         $existing_json['date_commande'] = $date_commande;
         $existing_json['contact_id']    = $contact_id ? (int)$contact_id : null;
+        $existing_json['ref_chantier']  = $ref_commande;
         $new_detailjson = json_encode($existing_json);
 
         if ($exists) {
