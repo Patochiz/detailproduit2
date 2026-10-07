@@ -51,7 +51,7 @@ class modDetailproduit extends DolibarrModules
 		$this->editor_name = 'DIAMANT INDUSTRIE';
 		$this->editor_url = 'www.diamant-industrie.com';
 
-		$this->version = '3.1';
+		$this->version = '3.2';
 		$this->const_name = 'MAIN_MODULE_'.strtoupper($this->name);
 		$this->picto = 'fa-file-o';
 

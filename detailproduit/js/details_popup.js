@@ -19,6 +19,8 @@ window.DETAILPRODUIT_POPUP_LOADED = true;
 var currentCommandedetId = null;
 var currentTotalQuantity = 0;
 var currentProductName = '';
+var currentProductId = null;
+var currentIsService = false;
 var rowCounter = 0;
 var sortColumn = -1;
 var sortDirection = 'asc';
@@ -126,6 +128,7 @@ function createDetailsModal() {
             '<div class="details-modal-footer">' +
                 '<div class="details-tip">Tip: Tab = navigation horizontale, Entr\u00e9e = navigation verticale</div>' +
                 '<div>' +
+                    '<button class="details-btn details-btn-primary" id="detailsOtBtn" style="display:none" onclick="openTransformationOrder()" title="Cr\u00e9er un ordre de transformation pour ce produit (nouvelle fen\u00eatre)">\uD83C\uDFED Ordre de transformation</button> ' +
                     '<button class="details-btn" onclick="closeDetailsModal()">Annuler</button>' +
                     '<button class="details-btn details-btn-success" onclick="saveDetails()">\uD83D\uDCBE Sauvegarder</button>' +
                 '</div>' +
@@ -235,7 +238,7 @@ function addDetailsButtonToLine(lineId, lineElement) {
         btn.style.cssText = 'margin-left:5px;text-decoration:none;font-size:11px;padding:2px 6px;background:#17a2b8;color:white;border-radius:2px;';
         btn.onclick = function(e) {
             e.preventDefault();
-            openDetailsModal(lineId, extractQuantity(lineElement), extractProductName(lineElement));
+            openDetailsModal(lineId, extractQuantity(lineElement), extractProductName(lineElement), productId, extractProductType(lineElement) == 1);
             return false;
         };
     }
@@ -333,7 +336,7 @@ function getSocidFromOrderId(orderId) {
 
 // --- Modal Open/Close ---
 
-function openDetailsModal(commandedetId, totalQty, productName) {
+function openDetailsModal(commandedetId, totalQty, productName, productId, isService) {
     if (isLoading) return;
 
     if (!detailsToken || !ajaxUrl) initializeGlobalVariables();
@@ -345,6 +348,15 @@ function openDetailsModal(commandedetId, totalQty, productName) {
     currentCommandedetId = commandedetId;
     currentTotalQuantity = totalQty || 1;
     currentProductName = productName || 'Produit';
+    currentProductId = productId || null;
+    currentIsService = !!isService;
+
+    // Bouton « Ordre de transformation » : module DiamantUtils actif, droit de création,
+    // ligne de produit (pas de service) sur une fiche commande
+    var otBtn = document.getElementById('detailsOtBtn');
+    if (otBtn) {
+        otBtn.style.display = (window.detailproduit_ot_url && currentProductId && !currentIsService && getCurrentOrderId()) ? '' : 'none';
+    }
 
     document.getElementById('detailsModalTitle').textContent = 'Détails du produit';
     document.getElementById('detailsProductName').textContent = currentProductName;
@@ -352,6 +364,34 @@ function openDetailsModal(commandedetId, totalQty, productName) {
 
     loadExistingDetails();
     document.getElementById('detailsModal').style.display = 'block';
+}
+
+/**
+ * Id de la commande affichée : injecté par le hook sur la fiche commande, sinon lu dans l'URL
+ */
+function getCurrentOrderId() {
+    if (typeof window.detailproduit_order_id !== 'undefined' && window.detailproduit_order_id) return window.detailproduit_order_id;
+    if (window.location.pathname.indexOf('/commande/card.php') !== -1) return getOrderIdFromUrl();
+    return null;
+}
+
+/**
+ * Ouvre dans une nouvelle fenêtre la création d'un ordre de transformation (module DiamantUtils)
+ * pré-rempli avec la commande, la ligne, le produit et la quantité de la ligne.
+ */
+function openTransformationOrder() {
+    var orderId = getCurrentOrderId();
+    if (!window.detailproduit_ot_url || !currentProductId || !orderId) return;
+
+    var params = [
+        'action=create',
+        'mainmenu=mrp',
+        'fk_product=' + encodeURIComponent(currentProductId),
+        'fk_commande=' + encodeURIComponent(orderId),
+        'fk_commandedet=' + encodeURIComponent(currentCommandedetId),
+        'qty=' + encodeURIComponent(currentTotalQuantity)
+    ];
+    window.open(window.detailproduit_ot_url + '?' + params.join('&'), '_blank');
 }
 
 function closeDetailsModal() {
