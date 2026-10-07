@@ -57,7 +57,7 @@ class ActionsDetailproduit
 	 */
 	public function printCommonFooter($parameters, &$object, &$action, $hookmanager)
 	{
-		global $conf;
+		global $conf, $user;
 
 		if (!isModEnabled('detailproduit')) {
 			return 0;
@@ -75,6 +75,14 @@ class ActionsDetailproduit
 		print '<script type="text/javascript">';
 		print 'window.DOL_URL_ROOT = "'.DOL_URL_ROOT.'";';
 		print 'window.detailproduit_token = "'.newToken().'";';
+		// Bouton « Ordre de transformation » du popup : seulement si le module DiamantUtils
+		// est actif et que l'utilisateur peut créer un ordre
+		if (isModEnabled('diamantutils') && $user->hasRight('diamantutils', 'transformation', 'write')) {
+			print 'window.detailproduit_ot_url = '.json_encode(dol_buildpath('/diamantutils/transformation_card.php', 1)).';';
+			if (is_object($object) && !empty($object->element) && $object->element == 'commande' && $object->id > 0) {
+				print 'window.detailproduit_order_id = '.((int) $object->id).';';
+			}
+		}
 		print '</script>';
 
 		print '<script type="text/javascript" src="'.dol_buildpath('/detailproduit/js/label_update.js', 1).'"></script>';
