@@ -232,6 +232,7 @@ try {
         $data = array(
             'n_commande' => '',
             'date_commande' => '',
+            'texte_libre' => '',
             'contact' => '',
             'ref_commande' => ''
         );
@@ -244,6 +245,7 @@ try {
                 if (is_array($json)) {
                     $data['n_commande']    = isset($json['n_commande'])    ? $json['n_commande']    : '';
                     $data['date_commande'] = isset($json['date_commande']) ? $json['date_commande'] : '';
+                    $data['texte_libre']   = isset($json['texte_libre'])   ? $json['texte_libre']   : '';
                     $data['contact']       = isset($json['contact_id'])    ? $json['contact_id']    : '';
                     $data['ref_commande']  = isset($json['ref_chantier'])  ? $json['ref_chantier']  : '';
                 }
@@ -271,12 +273,14 @@ try {
         $commandedet_id = GETPOST('commandedet_id', 'int');
         $n_commande = GETPOST('n_commande', 'alpha');
         $date_commande = GETPOST('date_commande', 'alpha');
+        $texte_libre = GETPOST('texte_libre', 'alphanohtml');
         $contact_id = GETPOST('contact', 'int');
         $ref_commande = GETPOST('ref_commande', 'alpha');
 
         debug_log("Commandedet ID: " . $commandedet_id);
         debug_log("N Commande: " . $n_commande);
         debug_log("Date Commande: " . $date_commande);
+        debug_log("Texte libre: " . $texte_libre);
         debug_log("Contact ID: " . $contact_id);
         debug_log("Ref Commande: " . $ref_commande);
 
@@ -335,7 +339,7 @@ try {
         }
 
         // Construire le texte du label
-        // Format: "Commande [N° Commande] du [Date Commande] de [Contact Commande] ref : [Ref Chantier]"
+        // Format: "Commande [N° Commande] du [Date Commande] [Texte libre] de [Contact Commande] ref : [Ref Chantier]"
         $label_parts = array();
 
         if (!empty($n_commande)) {
@@ -348,6 +352,10 @@ try {
             if ($date_obj) {
                 $label_parts[] = "du " . $date_obj->format('d/m/Y');
             }
+        }
+
+        if (!empty($texte_libre)) {
+            $label_parts[] = $texte_libre;
         }
 
         if (!empty($contact_name)) {
@@ -481,6 +489,7 @@ if ($result < 0) {
         // Fusionner les champs du popup service dans le JSON
         $existing_json['n_commande']    = $n_commande;
         $existing_json['date_commande'] = $date_commande;
+        $existing_json['texte_libre']   = $texte_libre;
         $existing_json['contact_id']    = $contact_id ? (int)$contact_id : null;
         $existing_json['ref_chantier']  = $ref_commande;
         $new_detailjson = json_encode($existing_json);
