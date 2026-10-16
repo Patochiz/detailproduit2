@@ -249,6 +249,10 @@
                             '<input type="date" id="labelDateCommande" class="label-form-input">' +
                         '</div>' +
                         '<div class="label-form-group">' +
+                            '<label for="labelTexteLibre">Texte libre</label>' +
+                            '<input type="text" id="labelTexteLibre" class="label-form-input" placeholder="Texte placé après la date de commande">' +
+                        '</div>' +
+                        '<div class="label-form-group">' +
                             '<label for="labelContact">Contact Commande</label>' +
                             '<select id="labelContact" class="label-form-input">' +
                                 '<option value="">-- Sélectionner un contact --</option>' +
@@ -290,7 +294,7 @@
             }
         };
         
-        var fieldIds = ['labelNCommande', 'labelDateCommande', 'labelContact', 'labelRefChantier'];
+        var fieldIds = ['labelNCommande', 'labelDateCommande', 'labelTexteLibre', 'labelContact', 'labelRefChantier'];
         for (var i = 0; i < fieldIds.length; i++) {
             var field = document.getElementById(fieldIds[i]);
             if (field) {
@@ -363,6 +367,7 @@
 
                 document.getElementById('labelNCommande').value = data.data.n_commande || '';
                 document.getElementById('labelDateCommande').value = data.data.date_commande || '';
+                document.getElementById('labelTexteLibre').value = data.data.texte_libre || '';
                 document.getElementById('labelContact').value = data.data.contact || '';
                 document.getElementById('labelRefChantier').value = data.data.ref_commande || '';
 
@@ -464,6 +469,7 @@
     function updateLabelPreviewInternal() {
         var nCommande = document.getElementById('labelNCommande').value.trim();
         var dateCommande = document.getElementById('labelDateCommande').value;
+        var texteLibre = document.getElementById('labelTexteLibre').value.trim();
         var contactId = document.getElementById('labelContact').value;
         var refChantier = document.getElementById('labelRefChantier').value.trim();
 
@@ -488,6 +494,10 @@
             } else {
                 labelParts.push("du " + dateCommande);
             }
+        }
+
+        if (texteLibre) {
+            labelParts.push(texteLibre);
         }
 
         if (contactName) {
@@ -554,10 +564,11 @@
 
         var nCommande = document.getElementById('labelNCommande').value.trim();
         var dateCommande = document.getElementById('labelDateCommande').value;
+        var texteLibre = document.getElementById('labelTexteLibre').value.trim();
         var contactId = document.getElementById('labelContact').value;
         var refChantier = document.getElementById('labelRefChantier').value.trim();
 
-        if (!nCommande && !dateCommande && !contactId && !refChantier) {
+        if (!nCommande && !dateCommande && !texteLibre && !contactId && !refChantier) {
             showLabelValidationMessage('Veuillez remplir au moins un champ', 'error');
             return;
         }
@@ -573,6 +584,7 @@
             commandedet_id: currentLabelCommandedetId,
             n_commande: nCommande,
             date_commande: dateCommande,
+            texte_libre: texteLibre,
             contact: contactId,
             ref_chantier: refChantier
         });
@@ -597,6 +609,7 @@
         formData.append('commandedet_id', currentLabelCommandedetId);
         formData.append('n_commande', nCommande);
         formData.append('date_commande', dateCommande);
+        formData.append('texte_libre', texteLibre);
         formData.append('contact', contactId);
         formData.append('ref_commande', refChantier);
         formData.append('token', csrfToken);
